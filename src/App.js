@@ -44,7 +44,7 @@ export default function App() {
 
   return (
     <div>
-      <h2>Calculate Fibonacci and Factorial</h2>
+      <h2>Welcome to CAS3135</h2>
       <input
         type="number"
         value={userInput}
