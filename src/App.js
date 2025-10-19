@@ -4,38 +4,43 @@ import './App.css';
 const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function App() {
-  const [userInput, setUserInput] = useState('');
+  const [userInputX, setUserInputX] = useState('');
+  const [userInputY, setUserInputY] = useState('');
   const [x, setX] = useState('');
-  const [fib, setFib] = useState(null);
-  const [fact, setFact] = useState(null);
+  const [y, setY] = useState('');
+  const [sum, setSum] = useState(null);
+  const [product, setProduct] = useState(null);
   const [error, setError] = useState(null);
 
   const calculate = async () => {
-    if (userInput === '' || isNaN(userInput) || userInput < 0) {
-      setError('Please enter a valid nonnegative integer.');
+    if (userInputX === '' || isNaN(userInputX)) {
+      setError('Please enter a valid real number.');
+      return;
+    }
+
+    if (userInputY === '' || isNaN(userInputY)) {
+      setError('Please enter a valid real number.');
       return;
     }
 
     setError(null);
-    setFib(null);
-    setFact(null);
+    setSum(null);
+    setProduct(null);
 
     try {
-      const [fibRes, factRes] = await Promise.all([
-        fetch(`${BACKEND_BASE_URL}/fib?x=${userInput}`),
-        fetch(`${BACKEND_BASE_URL}/fact?x=${userInput}`)
-      ]);
+      const response = await fetch(`${BACKEND_BASE_URL}/sum_and_product?x=${userInputX}&y=${userInputY}`);
+  
 
-      const fibData = await fibRes.json();
-      const factData = await factRes.json();
+      const data = await response.json();
 
-      if (fibData.type === 'success') setFib(fibData.result);
+      if (data.type === 'success'){
+        setSum(data.sum);
+        setProduct(data.product);
+      } 
       else setError('Failed to fetch Fibonacci result.');
 
-      if (factData.type === 'success') setFact(factData.result);
-      else setError('Failed to fetch factorial result.');
-
-      setX(userInput);
+      setX(userInputX);
+      setY(userInputY);
 
     } catch (err) {
       setError('Server error occurred.');
@@ -44,23 +49,30 @@ export default function App() {
 
   return (
     <div>
-      <h2>Welcome to CAS3135</h2>
+      <h2>Calculate Sum and Product</h2>
       <input
         type="number"
-        value={userInput}
-        min="0"
+        value={userInputX}
         placeholder="Enter a number"
-        onChange={e => setUserInput(e.target.value)}
+        onChange={e => setUserInputX(e.target.value)}
       />
       <br />
+      <input
+        type="number"
+        value={userInputY}
+        placeholder="Enter a number"
+        onChange={e => setUserInputY(e.target.value)}
+      />
+      <br />
+
       <button onClick={calculate} >
         Calculate
       </button>
 
       <div className="calcResult">
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        {fib !== null && <p>fib({x}) = <strong>{fib}</strong></p>}
-        {fact !== null && <p>fact({x}) = <strong>{fact}</strong></p>}
+        {sum !== null && <p>X + Y = <strong>{sum}</strong></p>}
+        {product !== null && <p>X * Y = <strong>{product}</strong></p>}
       </div>
     </div>
   );
